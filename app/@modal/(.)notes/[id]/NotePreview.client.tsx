@@ -15,20 +15,18 @@ export default function NotePreview({ id }: NotePreviewProps) {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["note", id],
     queryFn: () => fetchNoteById(id),
+    refetchOnMount: false,
   });
 
   if (isLoading) return <p>Loading...</p>;
   if (isError || !data) return <p>Something went wrong.</p>;
 
   return (
-    <Modal>
-      <button type="button" onClick={() => router.back()}>
-        Close
-      </button>
-
+    <Modal onClose={() => router.back()}>
       <h2>{data.title}</h2>
       <p>{data.content}</p>
       <p>{data.tag}</p>
+      <p>{data.createdAt}</p>
     </Modal>
   );
 }
