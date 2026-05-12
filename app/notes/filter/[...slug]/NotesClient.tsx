@@ -2,32 +2,45 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchNotes } from "@/lib/api/notes";
+import { fetchNotes } from "@/lib/api";
 import NoteList from "@/components/NoteList/NoteList";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
-import css from "./NotesClient.module.css";
+import NoteForm from "@/components/NoteForm/NoteForm";
+import Modal from "@/components/Modal/Modal";
 
-export default function NotesClient({ tag }: { tag: string }) {
-  const [search, setSearch] = useState("");
+interface NotesClientProps {
+  tag?: string;
+}
+
+export default function NotesClient({ tag }: NotesClientProps) {
   const [page, setPage] = useState(1);
-
-  const apiTag = tag === "all" ? undefined : tag;
+  const [search, setSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["notes", search, page, apiTag],
-    queryFn: () => fetchNotes(search, page, apiTag),
+    queryKey: ["notes", search, page, tag],
+    queryFn: () => fetchNotes(search, page, tag),
   });
 
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  const handlePageChange = (selectedPage: number) => {
+    setPage(selectedPage);
+  };
+
+  const openModal = () => setIsModalOpen(true);
+
   return (
-    <div className={css.container}>
-      <SearchBox
-        value={search}
-        onChange={(value) => {
-          setSearch(value);
-          setPage(1);
-        }}
-      />
+    <div>
+      <button type="button" onClick={openModal}>
+        Create note
+      </button>
+
+      <SearchBox value={search} onChange={handleSearchChange} />
 
       {isLoading && <p>Loading...</p>}
       {isError && <p>Something went wrong.</p>}
@@ -38,8 +51,14 @@ export default function NotesClient({ tag }: { tag: string }) {
         <Pagination
           pageCount={data.totalPages}
           currentPage={page}
-          onPageChange={setPage}
+          onPageChange={handlePageChange}
         />
+      )}
+
+      {isModalOpen && (
+        <Modal>
+          <NoteForm />
+        </Modal>
       )}
     </div>
   );
