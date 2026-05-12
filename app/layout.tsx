@@ -8,19 +8,17 @@ export const metadata: Metadata = {
   description: "NoteHub app",
 };
 
-export default function RootLayout({
+export default function Layout({
   children,
-}: Readonly<{
+  sidebar,
+}: {
   children: React.ReactNode;
-}>) {
+  sidebar: React.ReactNode;
+}) {
   return (
-    <html lang="uk">
-      <body>
-        <TanStackProvider>
-          <Header />
-          {children}
-        </TanStackProvider>
-      </body>
-    </html>
+    <div style={{ display: "flex" }}>
+      <aside>{sidebar}</aside>
+      <main>{children}</main>
+    </div>
   );
 }
